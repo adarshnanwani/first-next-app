@@ -1,11 +1,27 @@
-import { withRouter } from "next/router";
-
-const Post = ({ router }) => {
-  const { id } = router.query;
-  return <h1>You clicked on Post #{id}</h1>;
+import axios from "axios";
+const Post = ({ id, comments }) => {
+  return (
+    <div>
+      <h1>Comments for Post #{id} </h1>
+      {comments.map(comment => (
+        <Comment {...comment} key={comment.id} />
+      ))}
+    </div>
+  );
 };
 
-// Post.getInitialProps = async ({ query }) => {
-//   return { query };
-// };
-export default withRouter(Post);
+const Comment = ({ email, body }) => (
+  <div>
+    <h5>{email}</h5>
+    <p>{body}</p>
+  </div>
+);
+
+Post.getInitialProps = async ({ query }) => {
+  const res = await axios.get(
+    "https://jsonplaceholder.typicode.com/comments?postId=" + query.id
+  );
+  const comments = res.data;
+  return { ...query, comments };
+};
+export default Post;
